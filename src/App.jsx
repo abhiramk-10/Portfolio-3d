@@ -1,0 +1,625 @@
+import { useRef, useState } from 'react';
+import {
+  Bot,
+  BrainCircuit,
+  Camera,
+  ExternalLink,
+  Github,
+  Linkedin,
+  Mail,
+  MapPin,
+  Mic,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react';
+import { motion as Motion } from 'framer-motion';
+import './index.css';
+
+const skills = [
+  'Python',
+  'C',
+  'Java',
+  'SQL',
+  'Linux',
+  'OpenCV',
+  'YOLO',
+  'OCR',
+  'Robotics',
+  'AI/ML',
+];
+
+const projects = [
+  {
+    title: 'AI-Assisted Smart Security',
+    type: 'Computer vision',
+    description:
+      'Vehicle number plate recognition workflow using OpenCV and OCR to help automate campus gate access and reduce vehicle congestion.',
+    tags: ['Python', 'OpenCV', 'OCR'],
+  },
+  {
+    title: 'Vision and Detection Lab',
+    type: 'AI experiments',
+    description:
+      'Hands-on explorations around scientific computing, object detection, and YOLO-based visual intelligence.',
+    tags: ['YOLO', 'Python', 'AI/ML'],
+  },
+  {
+    title: '3D Portfolio System',
+    type: 'Web experience',
+    description:
+      'A responsive personal site built with React, Three.js, and motion details to make technical work feel more tangible.',
+    tags: ['React', 'Three.js', 'Vite'],
+  },
+];
+
+const systems = [
+  {
+    title: 'Abhiram K. Portfolio',
+    label: 'Public profile',
+    icon: UserRound,
+    description:
+      'The presentation layer for my work, skills, projects, and contact paths. Built to show the human behind the systems.',
+    points: ['AI/software profile', 'Project showcase', 'Contact hub'],
+  },
+  {
+    title: 'Jarvis AI Assistant',
+    label: 'Local AI system',
+    icon: Bot,
+    description:
+      'A camera, voice, memory, Malayalam-learning, DeepFace recognition, emotion-aware assistant running locally with LLM provider fallbacks.',
+    points: ['Voice commands', 'Face recognition', 'Self-diagnostics'],
+  },
+];
+
+const jarvisCapabilities = [
+  {
+    title: 'Voice-first control',
+    description: 'Wake, listen, respond, and execute local commands through a conversational voice loop.',
+    icon: Mic,
+  },
+  {
+    title: 'Camera awareness',
+    description: 'DeepFace-powered recognition and visual context so Jarvis can identify familiar people.',
+    icon: Camera,
+  },
+  {
+    title: 'Memory and learning',
+    description: 'Local memory, Malayalam-learning flows, emotional context, and provider fallbacks.',
+    icon: BrainCircuit,
+  },
+  {
+    title: 'Self diagnostics',
+    description: 'Checks services, cameras, models, and runtime state so the assistant can recover faster.',
+    icon: ShieldCheck,
+  },
+];
+
+const assistantReplies = {
+  projects:
+    'Abhiram works on computer vision, OCR automation, AI experiments, and this interactive React portfolio.',
+  skills:
+    'Core skills include Python, C, Java, SQL, Linux, OpenCV, YOLO, OCR, robotics, and AI/ML.',
+  jarvis:
+    'Jarvis is a local-first assistant with voice control, camera awareness, memory, Malayalam learning, and diagnostics.',
+  contact:
+    'You can reach Abhiram at hello@abhiramk.in or through GitHub and LinkedIn links in the contact section.',
+};
+
+const quickPrompts = [
+  { label: 'Projects', value: 'projects' },
+  { label: 'Skills', value: 'skills' },
+  { label: 'Jarvis', value: 'jarvis' },
+  { label: 'Contact', value: 'contact' },
+];
+
+const getSpeechRecognition = () => {
+  if (typeof window === 'undefined') return null;
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12 } },
+};
+
+function App() {
+  const year = new Date().getFullYear();
+  const heroRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantMessage, setAssistantMessage] = useState(assistantReplies.jarvis);
+  const [assistantTranscript, setAssistantTranscript] = useState('');
+  const [assistantListening, setAssistantListening] = useState(false);
+
+  const speakReply = (message) => {
+    if (!('speechSynthesis' in window)) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const runAssistantCommand = (rawCommand) => {
+    const command = rawCommand.toLowerCase();
+    let key = 'jarvis';
+    let target = null;
+
+    if (command.includes('project') || command.includes('work')) {
+      key = 'projects';
+      target = '#work';
+    } else if (command.includes('skill') || command.includes('technology') || command.includes('tech')) {
+      key = 'skills';
+    } else if (command.includes('contact') || command.includes('email') || command.includes('hire')) {
+      key = 'contact';
+      target = '#contact';
+    } else if (command.includes('jarvis') || command.includes('assistant') || command.includes('voice')) {
+      key = 'jarvis';
+      target = '#jarvis';
+    }
+
+    const message = assistantReplies[key];
+    setAssistantMessage(message);
+    speakReply(message);
+
+    if (target) {
+      document.querySelector(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleAssistantPrompt = (value) => {
+    const message = assistantReplies[value];
+    setAssistantMessage(message);
+    speakReply(message);
+  };
+
+  const toggleVoiceAssistant = () => {
+    const Recognition = getSpeechRecognition();
+
+    if (!Recognition) {
+      const message = 'Voice recognition is not supported in this browser. You can still use the quick prompt buttons.';
+      setAssistantMessage(message);
+      speakReply(message);
+      return;
+    }
+
+    if (assistantListening) {
+      recognitionRef.current?.stop();
+      setAssistantListening(false);
+      return;
+    }
+
+    const recognition = new Recognition();
+    recognitionRef.current = recognition;
+    recognition.lang = 'en-IN';
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onstart = () => {
+      setAssistantListening(true);
+      setAssistantTranscript('Listening...');
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join(' ')
+        .trim();
+
+      setAssistantTranscript(transcript);
+
+      if (event.results[event.results.length - 1].isFinal) {
+        runAssistantCommand(transcript);
+      }
+    };
+
+    recognition.onerror = () => {
+      setAssistantListening(false);
+      setAssistantTranscript('Voice command failed. Try again or use a quick prompt.');
+    };
+
+    recognition.onend = () => {
+      setAssistantListening(false);
+    };
+
+    recognition.start();
+  };
+
+  const handleHeroPointerMove = (event) => {
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    const rect = hero.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+
+    hero.style.setProperty('--cursor-x', x.toFixed(3));
+    hero.style.setProperty('--cursor-y', y.toFixed(3));
+    hero.style.setProperty('--wash-x', `${(x * 24).toFixed(2)}px`);
+    hero.style.setProperty('--portrait-x', `${(x * 42).toFixed(2)}px`);
+    hero.style.setProperty('--portrait-y', `${(y * 14).toFixed(2)}px`);
+    hero.style.setProperty('--tilt-y', `${(x * -22).toFixed(2)}deg`);
+    hero.style.setProperty('--tilt-x', `${(y * 10).toFixed(2)}deg`);
+    hero.style.setProperty('--image-x', `${(x * -28).toFixed(2)}px`);
+    hero.style.setProperty('--image-y', `${(y * -8).toFixed(2)}px`);
+    hero.style.setProperty('--shadow-x', `${(x * -34).toFixed(2)}px`);
+    hero.style.setProperty('--active-copy-x', `${(x * 12).toFixed(2)}px`);
+    hero.style.setProperty('--muted-copy-x', `${(x * -14).toFixed(2)}px`);
+    hero.dataset.focus = x < 0 ? 'left' : 'right';
+  };
+
+  const resetHeroPointer = () => {
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    hero.style.setProperty('--cursor-x', '0');
+    hero.style.setProperty('--cursor-y', '0');
+    hero.style.setProperty('--wash-x', '0px');
+    hero.style.setProperty('--portrait-x', '0px');
+    hero.style.setProperty('--portrait-y', '0px');
+    hero.style.setProperty('--tilt-y', '0deg');
+    hero.style.setProperty('--tilt-x', '0deg');
+    hero.style.setProperty('--image-x', '0px');
+    hero.style.setProperty('--image-y', '0px');
+    hero.style.setProperty('--shadow-x', '0px');
+    hero.style.setProperty('--active-copy-x', '0px');
+    hero.style.setProperty('--muted-copy-x', '0px');
+    hero.dataset.focus = 'center';
+  };
+
+  return (
+    <main className="site-shell">
+      <header className="topbar" aria-label="Primary navigation">
+        <a className="brand" href="#home" aria-label="Abhiram K home">
+          Abhiram K.
+        </a>
+        <nav className="nav-links">
+          <a href="#about">about</a>
+          <a href="#jarvis">jarvis</a>
+          <a href="#work">work</a>
+          <a href="#contact">contact</a>
+        </nav>
+      </header>
+
+      <section
+        id="home"
+        className="hero-section"
+        ref={heroRef}
+        data-focus="center"
+        onPointerMove={handleHeroPointerMove}
+        onPointerLeave={resetHeroPointer}
+      >
+        <Motion.div
+          className="hero-copy hero-copy-left"
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+        >
+          <p className="role-label">ai builder</p>
+          <h1>Computer science graduate building useful AI software.</h1>
+          <p>
+            I work across computer vision, automation, support systems, and
+            practical problem solving.
+          </p>
+          <a className="text-link" href="#work">
+            See latest work <ExternalLink size={17} aria-hidden="true" />
+          </a>
+        </Motion.div>
+
+        <Motion.div
+          className="hero-portrait-shell"
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+          aria-label="Interactive portrait of Abhiram K"
+        >
+          <div className="hero-portrait">
+            <div className="portrait-frame">
+              <img
+                src="/profile.jpg"
+                alt="Abhiram K."
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                }}
+              />
+              <div className="portrait-fallback" aria-hidden="true">
+                AK
+              </div>
+            </div>
+            <span className="portrait-shadow" aria-hidden="true" />
+          </div>
+        </Motion.div>
+
+        <Motion.div
+          className="hero-copy hero-copy-right"
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+        >
+          <p className="role-label">&lt; coder &gt;</p>
+          <h2>Clean code, fast learning, calm execution.</h2>
+          <p>
+            Currently Software Support Head at Vestano International Pvt. Ltd.,
+            with roots in DSA, Linux, SQL, and Python.
+          </p>
+          <a className="text-link" href="#contact">
+            Start a conversation <Mail size={17} aria-hidden="true" />
+          </a>
+        </Motion.div>
+      </section>
+
+      <section id="about" className="about-band">
+        <Motion.div
+          className="about-grid"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={stagger}
+        >
+          <Motion.div variants={fadeUp}>
+            <p className="section-kicker">about</p>
+            <h2>Software, AI, and the patience to debug the real world.</h2>
+          </Motion.div>
+          <Motion.div className="about-text" variants={fadeUp}>
+            <p>
+              I am Abhiram K., a Computer Science graduate from the University
+              of Calicut. I like building systems that make a practical job
+              easier, especially where AI, vision, and automation can remove
+              repeated manual work.
+            </p>
+            <p>
+              Outside work, I keep learning new AI/ML tools and stay active in
+              volunteering communities including NSS and IRCS.
+            </p>
+            <div className="location">
+              <MapPin size={18} aria-hidden="true" />
+              India
+            </div>
+          </Motion.div>
+        </Motion.div>
+      </section>
+
+      <section className="skills-strip" aria-label="Technical skills">
+        {skills.map((skill) => (
+          <span key={skill}>{skill}</span>
+        ))}
+      </section>
+
+      <section id="jarvis" className="jarvis-section">
+        <Motion.div
+          className="jarvis-hero"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+          variants={stagger}
+        >
+          <Motion.div className="jarvis-copy" variants={fadeUp}>
+            <p className="section-kicker">jarvis assistant</p>
+            <h2>A local AI assistant that can see, listen, remember, and respond.</h2>
+            <p>
+              Jarvis is my personal assistant system: voice commands, camera
+              recognition, memory, Malayalam learning, emotion-aware responses,
+              and LLM provider fallbacks running from a local-first setup.
+            </p>
+            <div className="jarvis-status" aria-label="Jarvis feature status">
+              <span>Local runtime</span>
+              <span>Voice loop</span>
+              <span>Vision enabled</span>
+            </div>
+          </Motion.div>
+
+          <Motion.div className="jarvis-console" variants={fadeUp} aria-label="Jarvis assistant preview">
+            <div className="console-topbar">
+              <span />
+              <span />
+              <span />
+              <strong>JARVIS_CORE</strong>
+            </div>
+            <div className="assistant-orb" aria-hidden="true">
+              <Bot size={58} />
+            </div>
+            <div className="console-lines">
+              <p><span>user</span> Jarvis, scan the room.</p>
+              <p><span>vision</span> Camera online. Face recognition ready.</p>
+              <p><span>jarvis</span> I can help with commands, memory, and diagnostics.</p>
+            </div>
+            <div className="voice-meter" aria-hidden="true">
+              {Array.from({ length: 18 }).map((_, index) => (
+                <i key={index} style={{ '--bar': (index % 6) + 1 }} />
+              ))}
+            </div>
+          </Motion.div>
+        </Motion.div>
+
+        <Motion.div
+          className="jarvis-capabilities"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+          variants={stagger}
+        >
+          {jarvisCapabilities.map((capability) => {
+            const Icon = capability.icon;
+            return (
+              <Motion.article className="jarvis-capability" key={capability.title} variants={fadeUp}>
+                <Icon size={24} aria-hidden="true" />
+                <h3>{capability.title}</h3>
+                <p>{capability.description}</p>
+              </Motion.article>
+            );
+          })}
+        </Motion.div>
+      </section>
+
+      <section id="systems" className="systems-section">
+        <Motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+          variants={stagger}
+        >
+          <Motion.div className="section-heading systems-heading" variants={fadeUp}>
+            <div>
+              <p className="section-kicker">separate sections</p>
+              <h2>Portfolio and assistant system, clearly split.</h2>
+            </div>
+            <p>
+              One surface explains me and my work. The other is the assistant
+              system I am building, testing, and improving.
+            </p>
+          </Motion.div>
+
+          <div className="systems-grid">
+            {systems.map((system) => {
+              const Icon = system.icon;
+              return (
+                <Motion.article className="system-card" key={system.title} variants={fadeUp}>
+                  <div className="system-card-top">
+                    <Icon size={28} aria-hidden="true" />
+                    <span>{system.label}</span>
+                  </div>
+                  <h3>{system.title}</h3>
+                  <p>{system.description}</p>
+                  <div className="system-points">
+                    {system.points.map((point) => (
+                      <span key={point}>{point}</span>
+                    ))}
+                  </div>
+                </Motion.article>
+              );
+            })}
+          </div>
+        </Motion.div>
+      </section>
+
+      <section id="work" className="work-section">
+        <Motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={stagger}
+        >
+          <Motion.div className="section-heading" variants={fadeUp}>
+            <p className="section-kicker">portfolio</p>
+            <h2>Some of my latest work</h2>
+          </Motion.div>
+
+          <div className="project-list">
+            {projects.map((project, index) => (
+              <Motion.article className="project-card" key={project.title} variants={fadeUp}>
+                <span className="project-index">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <p className="project-type">{project.type}</p>
+                  <h3>{project.title}</h3>
+                  <p>{project.description}</p>
+                </div>
+                <div className="project-tags">
+                  {project.tags.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+              </Motion.article>
+            ))}
+          </div>
+        </Motion.div>
+      </section>
+
+      <section id="contact" className="contact-section">
+        <Motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={fadeUp}
+        >
+          <p className="section-kicker">contact</p>
+          <h2>Let us build something useful.</h2>
+          <p>
+            I am open to software, AI, support engineering, computer vision,
+            and assistant automation opportunities.
+          </p>
+          <div className="contact-actions">
+            <a className="primary-button" href="mailto:hello@abhiramk.in">
+              <Mail size={18} aria-hidden="true" />
+              hello@abhiramk.in
+            </a>
+            <a href="https://github.com/abhiramkofficial" target="_blank" rel="noreferrer">
+              <Github size={18} aria-hidden="true" />
+              GitHub
+            </a>
+            <a href="https://linkedin.com/in/abhiramkofficial" target="_blank" rel="noreferrer">
+              <Linkedin size={18} aria-hidden="true" />
+              LinkedIn
+            </a>
+          </div>
+        </Motion.div>
+      </section>
+
+      <footer className="site-footer">
+        <span>© {year} Abhiram K.</span>
+        <a href="#home">Back to top</a>
+      </footer>
+
+      <div className={`assistant-widget ${assistantOpen ? 'is-open' : ''}`}>
+        {assistantOpen && (
+          <div className="assistant-panel" role="dialog" aria-label="Jarvis portfolio assistant">
+            <div className="assistant-panel-head">
+              <div>
+                <p>Jarvis</p>
+                <span>Portfolio assistant online</span>
+              </div>
+              <button type="button" onClick={() => setAssistantOpen(false)} aria-label="Close Jarvis assistant">
+                ×
+              </button>
+            </div>
+            <div className="assistant-message">
+              <span>jarvis</span>
+              <p>{assistantMessage}</p>
+            </div>
+            <button
+              type="button"
+              className={`assistant-mic ${assistantListening ? 'is-listening' : ''}`}
+              onClick={toggleVoiceAssistant}
+              aria-pressed={assistantListening}
+            >
+              <Mic size={18} aria-hidden="true" />
+              {assistantListening ? 'Listening...' : 'Start voice command'}
+            </button>
+            <p className="assistant-transcript" aria-live="polite">
+              {assistantTranscript || 'Try: show projects, tell me skills, open contact, explain Jarvis.'}
+            </p>
+            <div className="assistant-prompts" aria-label="Jarvis quick prompts">
+              {quickPrompts.map((prompt) => (
+                <button
+                  type="button"
+                  key={prompt.value}
+                  onClick={() => handleAssistantPrompt(prompt.value)}
+                >
+                  {prompt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          className="assistant-orb-button"
+          onClick={() => setAssistantOpen((open) => !open)}
+          aria-label="Open Jarvis portfolio assistant"
+          aria-expanded={assistantOpen}
+        >
+          <Bot size={30} aria-hidden="true" />
+          <span className="orb-pulse" aria-hidden="true" />
+        </button>
+      </div>
+    </main>
+  );
+}
+
+export default App;
