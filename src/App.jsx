@@ -114,6 +114,8 @@ const quickPrompts = [
   { label: 'Contact', value: 'open contact' },
 ];
 
+const ORB_BLOB_PATH = 'M 100 600 q 0 -500, 500 -500 t 500 500 t -500 500 T 100 600 z';
+
 const initialAssistantHistory = [
   {
     role: 'assistant',
@@ -137,6 +139,33 @@ const stagger = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
 };
+
+function JarvisBlobOrb({ compact = false, active = false }) {
+  return (
+    <div className={`jarvis-blob-orb ${compact ? 'is-compact' : ''} ${active ? 'is-active' : ''}`}>
+      <div className="jarvis-blob-backdrop" />
+      <div className="jarvis-blob-shell">
+        <svg viewBox="0 0 1200 1200" aria-hidden="true">
+          <g className="blob blob-1"><path d={ORB_BLOB_PATH} /></g>
+          <g className="blob blob-2"><path d={ORB_BLOB_PATH} /></g>
+          <g className="blob blob-3"><path d={ORB_BLOB_PATH} /></g>
+          <g className="blob blob-4"><path d={ORB_BLOB_PATH} /></g>
+          <g className="blob blob-1 alt"><path d={ORB_BLOB_PATH} /></g>
+          <g className="blob blob-2 alt"><path d={ORB_BLOB_PATH} /></g>
+          <g className="blob blob-3 alt"><path d={ORB_BLOB_PATH} /></g>
+          <g className="blob blob-4 alt"><path d={ORB_BLOB_PATH} /></g>
+        </svg>
+      </div>
+      {!compact && (
+        <div className="jarvis-blob-core">
+          <Bot size={18} aria-hidden="true" />
+          <span>Jarvis</span>
+          <small>{active ? 'Console open' : 'Portfolio AI'}</small>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function App() {
   const year = new Date().getFullYear();
@@ -668,6 +697,7 @@ function App() {
         {assistantOpen && (
           <div className="assistant-panel" role="dialog" aria-label="Jarvis portfolio assistant">
             <div className="assistant-panel-head">
+              <JarvisBlobOrb compact active />
               <div>
                 <p>Jarvis</p>
                 <span>{assistantMode} console online</span>
@@ -748,7 +778,7 @@ function App() {
           aria-label="Open Jarvis portfolio assistant"
           aria-expanded={assistantOpen}
         >
-          <Bot size={30} aria-hidden="true" />
+          <JarvisBlobOrb active={assistantOpen || assistantListening || assistantBusy} />
           <span className="orb-pulse" aria-hidden="true" />
         </button>
       </div>
