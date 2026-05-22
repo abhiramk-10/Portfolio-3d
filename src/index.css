@@ -98,12 +98,12 @@ a {
   position: relative;
   min-height: calc(100vh - 76px);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 390px) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 1fr) minmax(220px, 320px) minmax(240px, 1fr);
   align-items: center;
   gap: clamp(28px, 5vw, 72px);
   padding: 52px 0 70px;
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .hero-section::before,
@@ -141,7 +141,9 @@ a {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  width: 100%;
   transition: opacity 220ms ease, transform 220ms ease, filter 220ms ease;
+  min-width: 0;
 }
 
 .hero-copy-left {
@@ -191,8 +193,10 @@ a {
 
 .hero-copy h1,
 .hero-copy h2 {
-  max-width: 385px;
-  font-size: clamp(2.3rem, 4vw, 4.55rem);
+  width: 100%;
+  max-width: 360px;
+  font-size: clamp(2.35rem, 3.45vw, 4rem);
+  overflow-wrap: break-word;
 }
 
 .hero-copy p:not(.role-label),
@@ -226,7 +230,7 @@ a {
 
 .hero-portrait {
   position: relative;
-  width: min(100%, 410px);
+  width: min(100%, 320px);
   aspect-ratio: 0.78;
   margin: 0 auto;
   perspective: 900px;
@@ -234,6 +238,23 @@ a {
     translateX(var(--portrait-x))
     translateY(var(--portrait-y));
   transition: transform 180ms ease-out;
+}
+
+@media (max-width: 1100px) {
+  .hero-section {
+    grid-template-columns: minmax(220px, 1fr) minmax(190px, 270px) minmax(220px, 1fr);
+    gap: clamp(18px, 3vw, 34px);
+  }
+
+  .hero-copy h1,
+  .hero-copy h2 {
+    max-width: 320px;
+    font-size: clamp(2.15rem, 3.1vw, 3.15rem);
+  }
+
+  .hero-copy p:not(.role-label) {
+    max-width: 310px;
+  }
 }
 
 .portrait-frame {
@@ -765,7 +786,7 @@ a {
   position: fixed;
   right: max(18px, calc((100vw - 1180px) / 2));
   bottom: 22px;
-  z-index: 40;
+  z-index: 100;
   display: grid;
   justify-items: end;
   gap: 12px;
@@ -956,10 +977,49 @@ a {
     width: min(100% - 28px, 680px);
   }
 
+  .topbar {
+    position: relative;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 0;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 calc(50% - 8px);
+    min-height: 40px;
+  }
+
   .hero-section {
     grid-template-columns: 1fr;
     min-height: auto;
-    padding-top: 40px;
+    gap: 26px;
+    padding: 28px 0 58px;
+    overflow: visible;
+    pointer-events: auto;
+  }
+
+  .hero-section::before,
+  .hero-section::after {
+    display: none;
+  }
+
+  .hero-section[data-focus='left'] .hero-copy-right,
+  .hero-section[data-focus='right'] .hero-copy-left,
+  .hero-section[data-focus='left'] .hero-copy-left,
+  .hero-section[data-focus='right'] .hero-copy-right {
+    opacity: 1;
+    filter: none;
+    transform: none;
   }
 
   .hero-copy-left,
@@ -968,18 +1028,40 @@ a {
     text-align: center;
   }
 
+  .hero-copy {
+    width: min(100%, 300px);
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
   .hero-copy h1,
   .hero-copy h2,
   .hero-copy p:not(.role-label) {
-    max-width: 640px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-copy h1,
+  .hero-copy h2 {
+    font-size: clamp(1.8rem, 6.8vw, 2.2rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   .hero-portrait-shell {
-    order: -1;
+    order: 0;
   }
 
   .hero-portrait {
-    width: min(78vw, 360px);
+    width: min(68vw, 260px);
+    transform: none;
+  }
+
+  .portrait-frame,
+  .portrait-frame img,
+  .portrait-shadow {
+    transform: none;
   }
 
   .about-grid,
@@ -1007,7 +1089,7 @@ a {
   }
 
   .nav-links {
-    gap: 14px;
+    gap: 8px;
     font-size: 0.86rem;
   }
 
@@ -1043,12 +1125,12 @@ a {
   }
 
   .assistant-widget {
-    right: 14px;
-    bottom: 14px;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   .assistant-orb-button {
-    width: 58px;
-    height: 58px;
+    width: 60px;
+    height: 60px;
   }
 }

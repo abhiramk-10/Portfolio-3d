@@ -232,6 +232,8 @@ function App() {
   };
 
   const handleHeroPointerMove = (event) => {
+    if (event.pointerType === 'touch') return;
+
     const hero = heroRef.current;
     if (!hero) return;
 
