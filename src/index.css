@@ -919,7 +919,7 @@ a {
 }
 
 .assistant-panel {
-  width: min(360px, calc(100vw - 32px));
+  width: min(430px, calc(100vw - 32px));
   padding: 14px;
   border: 1px solid rgba(32, 33, 36, 0.22);
   border-radius: 8px;
@@ -972,6 +972,79 @@ a {
   border: 1px solid rgba(255, 250, 240, 0.12);
   border-radius: 8px;
   background: rgba(255, 250, 240, 0.06);
+}
+
+.assistant-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 12px 0;
+}
+
+.assistant-status-grid span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 7px 8px;
+  border: 1px solid rgba(123, 224, 183, 0.24);
+  border-radius: 999px;
+  background: rgba(123, 224, 183, 0.08);
+  color: rgba(255, 250, 240, 0.76);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.assistant-feed {
+  display: grid;
+  gap: 9px;
+  max-height: min(320px, 42vh);
+  margin: 12px 0;
+  padding-right: 4px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(123, 224, 183, 0.38) rgba(255, 250, 240, 0.08);
+}
+
+.assistant-bubble {
+  max-width: 92%;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 250, 240, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 250, 240, 0.06);
+}
+
+.assistant-bubble.user {
+  justify-self: end;
+  border-color: rgba(58, 127, 177, 0.34);
+  background: rgba(58, 127, 177, 0.16);
+}
+
+.assistant-bubble.assistant {
+  justify-self: start;
+  border-color: rgba(123, 224, 183, 0.24);
+}
+
+.assistant-bubble span {
+  display: block;
+  color: #7be0b7;
+  font-size: 0.7rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.assistant-bubble.user span {
+  color: #95c7f4;
+}
+
+.assistant-bubble p {
+  margin: 6px 0 0;
+  color: rgba(255, 250, 240, 0.84);
+  font-size: 0.92rem;
+  line-height: 1.48;
 }
 
 .assistant-message span {
@@ -1036,6 +1109,50 @@ a {
   line-height: 1.45;
 }
 
+.assistant-command-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.assistant-command-form input {
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 250, 240, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.08);
+  color: #fffaf0;
+  font: inherit;
+}
+
+.assistant-command-form input::placeholder {
+  color: rgba(255, 250, 240, 0.42);
+}
+
+.assistant-command-form input:focus {
+  outline: 2px solid rgba(123, 224, 183, 0.34);
+  outline-offset: 2px;
+}
+
+.assistant-command-form button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  min-height: 42px;
+  border: 1px solid rgba(123, 224, 183, 0.38);
+  border-radius: 50%;
+  background: rgba(123, 224, 183, 0.16);
+  color: #fffaf0;
+  cursor: pointer;
+}
+
+.assistant-command-form button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
 .assistant-prompts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1054,6 +1171,21 @@ a {
 
 .assistant-prompts button:hover {
   background: rgba(123, 224, 183, 0.16);
+}
+
+.assistant-clear {
+  width: 100%;
+  min-height: 34px;
+  margin-top: 9px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 250, 240, 0.52);
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.assistant-clear:hover {
+  color: #7be0b7;
 }
 
 @media (max-width: 760px) {
@@ -1228,5 +1360,9 @@ a {
   .assistant-orb-button {
     width: 60px;
     height: 60px;
+  }
+
+  .assistant-status-grid {
+    grid-template-columns: 1fr;
   }
 }

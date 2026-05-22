@@ -9,7 +9,9 @@ import {
   Mail,
   MapPin,
   Mic,
+  Send,
   ShieldCheck,
+  Sparkles,
   UserRound,
 } from 'lucide-react';
 import { motion as Motion } from 'framer-motion';
@@ -106,11 +108,20 @@ const assistantReplies = {
 };
 
 const quickPrompts = [
-  { label: 'Projects', value: 'projects' },
-  { label: 'Skills', value: 'skills' },
-  { label: 'Jarvis', value: 'jarvis' },
-  { label: 'Contact', value: 'contact' },
+  { label: 'Projects', value: 'show projects' },
+  { label: 'Skills', value: 'show skills' },
+  { label: 'Jarvis', value: 'explain jarvis' },
+  { label: 'Contact', value: 'open contact' },
 ];
+
+const initialAssistantHistory = [
+  {
+    role: 'assistant',
+    text: 'Jarvis portfolio console online. Ask about Abhiram, projects, skills, contact, or say "open work".',
+  },
+];
+
+const assistantHints = ['open work', 'show skills', 'explain Jarvis', 'contact Abhiram'];
 
 const getSpeechRecognition = () => {
   if (typeof window === 'undefined') return null;
@@ -132,9 +143,12 @@ function App() {
   const heroRef = useRef(null);
   const recognitionRef = useRef(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
-  const [assistantMessage, setAssistantMessage] = useState(assistantReplies.jarvis);
+  const [assistantHistory, setAssistantHistory] = useState(initialAssistantHistory);
+  const [assistantInput, setAssistantInput] = useState('');
   const [assistantTranscript, setAssistantTranscript] = useState('');
   const [assistantListening, setAssistantListening] = useState(false);
+  const [assistantBusy, setAssistantBusy] = useState(false);
+  const [assistantMode, setAssistantMode] = useState('portfolio');
 
   const speakReply = (message) => {
     if (!('speechSynthesis' in window)) return;
@@ -146,12 +160,13 @@ function App() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const runAssistantCommand = (rawCommand) => {
+  const getLocalAssistantReply = (rawCommand) => {
     const command = rawCommand.toLowerCase();
     let key = 'jarvis';
     let target = null;
+    let message = assistantReplies.jarvis;
 
-    if (command.includes('project') || command.includes('work')) {
+    if (command.includes('project') || command.includes('work') || command.includes('portfolio')) {
       key = 'projects';
       target = '#work';
     } else if (command.includes('skill') || command.includes('technology') || command.includes('tech')) {
@@ -159,24 +174,106 @@ function App() {
     } else if (command.includes('contact') || command.includes('email') || command.includes('hire')) {
       key = 'contact';
       target = '#contact';
+    } else if (command.includes('about') || command.includes('who is abhiram') || command.includes('profile')) {
+      message =
+        'Abhiram K. is a Computer Science graduate and Software Support Head focused on practical AI tools, computer vision, OCR automation, and support workflows.';
+      target = '#about';
+      return { message, target, mode: 'profile' };
+    } else if (command.includes('github')) {
+      message = 'Opening Abhiram\'s GitHub profile.';
+      return { message, target: 'https://github.com/abhiramk-10', mode: 'external' };
+    } else if (command.includes('linkedin')) {
+      message = 'Opening Abhiram\'s LinkedIn profile.';
+      return { message, target: 'https://linkedin.com/in/abhiramkofficial', mode: 'external' };
     } else if (command.includes('jarvis') || command.includes('assistant') || command.includes('voice')) {
       key = 'jarvis';
       target = '#jarvis';
     }
 
-    const message = assistantReplies[key];
-    setAssistantMessage(message);
-    speakReply(message);
+    message = assistantReplies[key];
+    return { message, target, mode: key };
+  };
 
-    if (target) {
-      document.querySelector(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const queryLocalJarvis = async (message) => {
+    if (window.location.protocol === 'https:') {
+      return null;
     }
+
+    const response = await fetch('http://localhost:8006/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_name: 'portfolio visitor',
+        message,
+        enable_voice: false,
+      }),
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.response || null;
+  };
+
+  const applyAssistantTarget = (target) => {
+    if (!target) return;
+
+    if (target.startsWith('http')) {
+      window.open(target, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    document.querySelector(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const runAssistantCommand = async (rawCommand, options = {}) => {
+    const command = rawCommand.trim();
+    if (!command) return;
+
+    setAssistantBusy(true);
+    setAssistantHistory((history) => [...history, { role: 'user', text: command }]);
+
+    let reply = null;
+    let localResult = getLocalAssistantReply(command);
+
+    if (command.toLowerCase().startsWith('ask jarvis')) {
+      try {
+        reply = await queryLocalJarvis(command.replace(/^ask jarvis\s*:?\s*/i, ''));
+        if (reply) {
+          setAssistantMode('jarvis bridge');
+          localResult = { message: reply, target: null, mode: 'jarvis bridge' };
+        }
+      } catch {
+        reply = null;
+      }
+    }
+
+    const message = reply || localResult.message;
+    setAssistantMode(localResult.mode || 'portfolio');
+    setAssistantHistory((history) => [...history, { role: 'assistant', text: message }]);
+    setAssistantBusy(false);
+
+    if (options.speak !== false) {
+      speakReply(message);
+    }
+
+    applyAssistantTarget(localResult.target);
   };
 
   const handleAssistantPrompt = (value) => {
-    const message = assistantReplies[value];
-    setAssistantMessage(message);
-    speakReply(message);
+    runAssistantCommand(value);
+  };
+
+  const handleAssistantSubmit = (event) => {
+    event.preventDefault();
+    const command = assistantInput.trim();
+    setAssistantInput('');
+    runAssistantCommand(command);
+  };
+
+  const clearAssistantHistory = () => {
+    setAssistantHistory(initialAssistantHistory);
+    setAssistantTranscript('');
+    setAssistantMode('portfolio');
   };
 
   const toggleVoiceAssistant = () => {
@@ -184,7 +281,7 @@ function App() {
 
     if (!Recognition) {
       const message = 'Voice recognition is not supported in this browser. You can still use the quick prompt buttons.';
-      setAssistantMessage(message);
+      setAssistantHistory((history) => [...history, { role: 'assistant', text: message }]);
       speakReply(message);
       return;
     }
@@ -573,16 +670,34 @@ function App() {
             <div className="assistant-panel-head">
               <div>
                 <p>Jarvis</p>
-                <span>Portfolio assistant online</span>
+                <span>{assistantMode} console online</span>
               </div>
               <button type="button" onClick={() => setAssistantOpen(false)} aria-label="Close Jarvis assistant">
                 ×
               </button>
             </div>
-            <div className="assistant-message">
-              <span>jarvis</span>
-              <p>{assistantMessage}</p>
+
+            <div className="assistant-status-grid" aria-label="Assistant status">
+              <span><Sparkles size={14} aria-hidden="true" /> Smart routing</span>
+              <span>Voice ready</span>
+              <span>Local bridge optional</span>
             </div>
+
+            <div className="assistant-feed" aria-live="polite">
+              {assistantHistory.slice(-6).map((entry, index) => (
+                <div className={`assistant-bubble ${entry.role}`} key={`${entry.role}-${index}-${entry.text}`}>
+                  <span>{entry.role === 'assistant' ? 'jarvis' : 'you'}</span>
+                  <p>{entry.text}</p>
+                </div>
+              ))}
+              {assistantBusy && (
+                <div className="assistant-bubble assistant">
+                  <span>jarvis</span>
+                  <p>Thinking...</p>
+                </div>
+              )}
+            </div>
+
             <button
               type="button"
               className={`assistant-mic ${assistantListening ? 'is-listening' : ''}`}
@@ -593,19 +708,36 @@ function App() {
               {assistantListening ? 'Listening...' : 'Start voice command'}
             </button>
             <p className="assistant-transcript" aria-live="polite">
-              {assistantTranscript || 'Try: show projects, tell me skills, open contact, explain Jarvis.'}
+              {assistantTranscript || `Try: ${assistantHints.join(', ')}.`}
             </p>
+
+            <form className="assistant-command-form" onSubmit={handleAssistantSubmit}>
+              <input
+                type="text"
+                value={assistantInput}
+                onChange={(event) => setAssistantInput(event.target.value)}
+                placeholder="Ask about projects, skills, Jarvis..."
+                aria-label="Ask Jarvis portfolio assistant"
+              />
+              <button type="submit" aria-label="Send message to Jarvis" disabled={assistantBusy}>
+                <Send size={17} aria-hidden="true" />
+              </button>
+            </form>
+
             <div className="assistant-prompts" aria-label="Jarvis quick prompts">
               {quickPrompts.map((prompt) => (
                 <button
                   type="button"
-                  key={prompt.value}
+                  key={prompt.label}
                   onClick={() => handleAssistantPrompt(prompt.value)}
                 >
                   {prompt.label}
                 </button>
               ))}
             </div>
+            <button type="button" className="assistant-clear" onClick={clearAssistantHistory}>
+              Reset console
+            </button>
           </div>
         )}
 
