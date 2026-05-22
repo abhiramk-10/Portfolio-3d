@@ -44,7 +44,7 @@ a {
 }
 
 .site-shell {
-  width: min(1180px, calc(100% - 40px));
+  width: calc(100% - 48px);
   margin: 0 auto;
 }
 
@@ -98,10 +98,10 @@ a {
   position: relative;
   min-height: calc(100vh - 76px);
   display: grid;
-  grid-template-columns: minmax(240px, 1fr) minmax(220px, 320px) minmax(240px, 1fr);
+  grid-template-columns: minmax(300px, 1fr) minmax(240px, 360px) minmax(300px, 1fr);
   align-items: center;
   gap: clamp(28px, 5vw, 72px);
-  padding: 52px 0 70px;
+  padding: 52px clamp(24px, 4vw, 96px) 70px;
   isolation: isolate;
   overflow: visible;
 }
@@ -147,12 +147,13 @@ a {
 }
 
 .hero-copy-left {
-  text-align: right;
-  align-items: flex-end;
+  text-align: left;
+  align-items: flex-start;
 }
 
 .hero-copy-right {
-  align-items: flex-start;
+  align-items: flex-end;
+  text-align: right;
 }
 
 .hero-section[data-focus='left'] .hero-copy-right,
@@ -194,8 +195,8 @@ a {
 .hero-copy h1,
 .hero-copy h2 {
   width: 100%;
-  max-width: 360px;
-  font-size: clamp(2.35rem, 3.45vw, 4rem);
+  max-width: 430px;
+  font-size: clamp(2.35rem, 3.35vw, 4.3rem);
   overflow-wrap: break-word;
 }
 
@@ -230,7 +231,7 @@ a {
 
 .hero-portrait {
   position: relative;
-  width: min(100%, 320px);
+  width: min(100%, 360px);
   aspect-ratio: 0.78;
   margin: 0 auto;
   perspective: 900px;
