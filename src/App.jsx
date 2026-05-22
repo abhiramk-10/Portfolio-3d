@@ -17,37 +17,37 @@ import './index.css';
 
 const skills = [
   'Python',
-  'C',
-  'Java',
-  'SQL',
-  'Linux',
   'OpenCV',
   'YOLO',
   'OCR',
+  'SQL',
+  'Linux',
+  'Java',
+  'C',
   'Robotics',
   'AI/ML',
 ];
 
 const projects = [
   {
-    title: 'AI-Assisted Smart Security',
+    title: 'Smart Vehicle Entry System',
     type: 'Computer vision',
     description:
-      'Vehicle number plate recognition workflow using OpenCV and OCR to help automate campus gate access and reduce vehicle congestion.',
+      'A number-plate recognition workflow using OpenCV and OCR to support faster campus gate access and reduce manual vehicle checks.',
     tags: ['Python', 'OpenCV', 'OCR'],
   },
   {
-    title: 'Vision and Detection Lab',
+    title: 'Vision Detection Lab',
     type: 'AI experiments',
     description:
-      'Hands-on explorations around scientific computing, object detection, and YOLO-based visual intelligence.',
+      'Object-detection experiments focused on YOLO, image processing, and practical computer-vision workflows that can move from demo to utility.',
     tags: ['YOLO', 'Python', 'AI/ML'],
   },
   {
-    title: '3D Portfolio System',
+    title: 'Interactive Portfolio System',
     type: 'Web experience',
     description:
-      'A responsive personal site built with React, Three.js, and motion details to make technical work feel more tangible.',
+      'A responsive React and Vite portfolio with motion details, structured sections, and a voice-ready assistant layer.',
     tags: ['React', 'Three.js', 'Vite'],
   },
 ];
@@ -58,7 +58,7 @@ const systems = [
     label: 'Public profile',
     icon: UserRound,
     description:
-      'The presentation layer for my work, skills, projects, and contact paths. Built to show the human behind the systems.',
+      'A focused profile for my work, skills, projects, and contact paths, built to show both the engineer and the systems thinking behind the work.',
     points: ['AI/software profile', 'Project showcase', 'Contact hub'],
   },
   {
@@ -66,7 +66,7 @@ const systems = [
     label: 'Local AI system',
     icon: Bot,
     description:
-      'A camera, voice, memory, Malayalam-learning, DeepFace recognition, emotion-aware assistant running locally with LLM provider fallbacks.',
+      'A local-first assistant exploring voice control, camera awareness, memory, Malayalam-learning flows, and provider fallbacks.',
     points: ['Voice commands', 'Face recognition', 'Self-diagnostics'],
   },
 ];
@@ -96,13 +96,13 @@ const jarvisCapabilities = [
 
 const assistantReplies = {
   projects:
-    'Abhiram works on computer vision, OCR automation, AI experiments, and this interactive React portfolio.',
+    'Abhiram builds practical computer-vision workflows, OCR automation, AI experiments, and this responsive React portfolio.',
   skills:
-    'Core skills include Python, C, Java, SQL, Linux, OpenCV, YOLO, OCR, robotics, and AI/ML.',
+    'Core skills include Python, OpenCV, YOLO, OCR, SQL, Linux, Java, C, robotics, and AI/ML fundamentals.',
   jarvis:
-    'Jarvis is a local-first assistant with voice control, camera awareness, memory, Malayalam learning, and diagnostics.',
+    'Jarvis is a local-first assistant project with voice control, camera awareness, memory, Malayalam learning, and runtime diagnostics.',
   contact:
-    'You can reach Abhiram at hello@abhiramk.in or through GitHub and LinkedIn links in the contact section.',
+    'You can reach Abhiram at hello@abhiramk.in, or use the GitHub and LinkedIn links in the contact section.',
 };
 
 const quickPrompts = [
@@ -299,26 +299,25 @@ function App() {
       >
         <Motion.div
           className="hero-copy hero-copy-left"
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
         >
           <p className="role-label">ai builder</p>
-          <h1>Computer science graduate building useful AI software.</h1>
+          <h1>Computer science graduate building practical AI tools.</h1>
           <p>
-            I work across computer vision, automation, support systems, and
-            practical problem solving.
+            I work across computer vision, automation, support engineering,
+            and software that makes repeated work easier.
           </p>
           <a className="text-link" href="#work">
             See latest work <ExternalLink size={17} aria-hidden="true" />
           </a>
+          <div className="hero-facts" aria-label="Portfolio highlights">
+            <span>OpenCV + OCR</span>
+            <span>AI/ML learner</span>
+            <span>Support lead</span>
+          </div>
         </Motion.div>
 
         <Motion.div
           className="hero-portrait-shell"
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
           aria-label="Interactive portrait of Abhiram K"
         >
           <div className="hero-portrait">
@@ -340,19 +339,19 @@ function App() {
 
         <Motion.div
           className="hero-copy hero-copy-right"
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
         >
           <p className="role-label">&lt; coder &gt;</p>
-          <h2>Clean code, fast learning, calm execution.</h2>
+          <h2>Calm support, clean systems, fast learning.</h2>
           <p>
             Currently Software Support Head at Vestano International Pvt. Ltd.,
-            with roots in DSA, Linux, SQL, and Python.
+            with hands-on roots in Python, Linux, SQL, DSA, and automation.
           </p>
           <a className="text-link" href="#contact">
             Start a conversation <Mail size={17} aria-hidden="true" />
           </a>
+          <div className="availability-note" aria-label="Availability">
+            <span>Available for AI, support engineering, and computer vision work</span>
+          </div>
         </Motion.div>
       </section>
 
@@ -366,18 +365,19 @@ function App() {
         >
           <Motion.div variants={fadeUp}>
             <p className="section-kicker">about</p>
-            <h2>Software, AI, and the patience to debug the real world.</h2>
+            <h2>Software, AI, and the patience to debug real workflows.</h2>
           </Motion.div>
           <Motion.div className="about-text" variants={fadeUp}>
             <p>
               I am Abhiram K., a Computer Science graduate from the University
-              of Calicut. I like building systems that make a practical job
-              easier, especially where AI, vision, and automation can remove
-              repeated manual work.
+              of Calicut. I like building systems that make practical jobs
+              easier, especially where AI, vision, and automation can reduce
+              repeated manual effort.
             </p>
             <p>
-              Outside work, I keep learning new AI/ML tools and stay active in
-              volunteering communities including NSS and IRCS.
+              At work, I support software operations and users. Outside work,
+              I keep learning AI/ML tools and stay active in volunteering
+              communities including NSS and IRCS.
             </p>
             <div className="location">
               <MapPin size={18} aria-hidden="true" />
@@ -403,11 +403,11 @@ function App() {
         >
           <Motion.div className="jarvis-copy" variants={fadeUp}>
             <p className="section-kicker">jarvis assistant</p>
-            <h2>A local AI assistant that can see, listen, remember, and respond.</h2>
+            <h2>A local AI assistant built around voice, vision, and memory.</h2>
             <p>
               Jarvis is my personal assistant system: voice commands, camera
-              recognition, memory, Malayalam learning, emotion-aware responses,
-              and LLM provider fallbacks running from a local-first setup.
+              recognition, memory, Malayalam learning, diagnostics, and LLM
+              provider fallbacks running from a local-first setup.
             </p>
             <div className="jarvis-status" aria-label="Jarvis feature status">
               <span>Local runtime</span>
@@ -429,7 +429,7 @@ function App() {
             <div className="console-lines">
               <p><span>user</span> Jarvis, scan the room.</p>
               <p><span>vision</span> Camera online. Face recognition ready.</p>
-              <p><span>jarvis</span> I can help with commands, memory, and diagnostics.</p>
+              <p><span>jarvis</span> Ready for commands, memory, and diagnostics.</p>
             </div>
             <div className="voice-meter" aria-hidden="true">
               {Array.from({ length: 18 }).map((_, index) => (
@@ -469,7 +469,7 @@ function App() {
           <Motion.div className="section-heading systems-heading" variants={fadeUp}>
             <div>
               <p className="section-kicker">separate sections</p>
-              <h2>Portfolio and assistant system, clearly split.</h2>
+              <h2>Portfolio profile and assistant system, clearly separated.</h2>
             </div>
             <p>
               One surface explains me and my work. The other is the assistant
@@ -509,7 +509,7 @@ function App() {
         >
           <Motion.div className="section-heading" variants={fadeUp}>
             <p className="section-kicker">portfolio</p>
-            <h2>Some of my latest work</h2>
+            <h2>Selected work and experiments</h2>
           </Motion.div>
 
           <div className="project-list">
@@ -542,15 +542,15 @@ function App() {
           <p className="section-kicker">contact</p>
           <h2>Let us build something useful.</h2>
           <p>
-            I am open to software, AI, support engineering, computer vision,
-            and assistant automation opportunities.
+            I am open to software support, AI, computer vision, automation,
+            and assistant-system opportunities.
           </p>
           <div className="contact-actions">
             <a className="primary-button" href="mailto:hello@abhiramk.in">
               <Mail size={18} aria-hidden="true" />
               hello@abhiramk.in
             </a>
-            <a href="https://github.com/abhiramkofficial" target="_blank" rel="noreferrer">
+            <a href="https://github.com/abhiramk-10" target="_blank" rel="noreferrer">
               <Github size={18} aria-hidden="true" />
               GitHub
             </a>
