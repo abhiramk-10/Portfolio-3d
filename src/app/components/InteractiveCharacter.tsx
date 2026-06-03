@@ -15,9 +15,15 @@ type SpeechRecognitionLike = {
   lang: string;
   maxAlternatives: number;
   onend: (() => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
   onresult:
-    | ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void)
+    | ((
+        event: {
+          results: ArrayLike<
+            ArrayLike<{ transcript: string }> & { isFinal?: boolean }
+          >;
+        },
+      ) => void)
     | null;
   start: () => void;
   stop: () => void;
@@ -40,8 +46,8 @@ const emotionTiming = {
 const voiceCommandAliases: Record<Expression, string[]> = {
   soft: ["soft", "calm", "normal", "relax", "reset", "smile", "default"],
   thinking: ["think", "thinking", "thought", "idea", "ideas", "brainstorm"],
-  listening: ["listen", "listening", "listing", "hear me", "look at me"],
-  sleeping: ["sleep", "sleeping", "go sleep", "go to sleep", "sleepy", "nap"],
+  listening: ["listen", "listening", "listing", "lesson", "hear me", "look at me"],
+  sleeping: ["sleep", "sleeping", "slip", "go sleep", "go to sleep", "sleepy", "nap"],
   speaking: ["speak", "speaking", "talk", "talking", "say", "say hello"],
   waking: [
     "wake",
@@ -49,6 +55,7 @@ const voiceCommandAliases: Record<Expression, string[]> = {
     "wakeup",
     "wake app",
     "week up",
+    "make up",
     "awake",
     "get up",
   ],
@@ -72,14 +79,57 @@ const normalizeVoiceText = (text: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+const isCloseVoiceWord = (spokenWord: string, expectedWord: string) => {
+  if (spokenWord === expectedWord) return true;
+  if (expectedWord.length < 4) return false;
+  if (Math.abs(spokenWord.length - expectedWord.length) > 1) return false;
+
+  let edits = 0;
+  let spokenIndex = 0;
+  let expectedIndex = 0;
+
+  while (spokenIndex < spokenWord.length && expectedIndex < expectedWord.length) {
+    if (spokenWord[spokenIndex] === expectedWord[expectedIndex]) {
+      spokenIndex += 1;
+      expectedIndex += 1;
+      continue;
+    }
+
+    edits += 1;
+    if (edits > 1) return false;
+
+    if (spokenWord.length > expectedWord.length) {
+      spokenIndex += 1;
+    } else if (spokenWord.length < expectedWord.length) {
+      expectedIndex += 1;
+    } else {
+      spokenIndex += 1;
+      expectedIndex += 1;
+    }
+  }
+
+  return true;
+};
+
 const findVoiceCommand = (text: string): Expression | null => {
   const normalizedText = normalizeVoiceText(text);
+  const spokenWords = normalizedText.split(" ").filter(Boolean);
 
   for (const [expression, aliases] of Object.entries(voiceCommandAliases)) {
     if (
-      aliases.some((alias) =>
-        normalizedText.includes(normalizeVoiceText(alias)),
-      )
+      aliases.some((alias) => {
+        const normalizedAlias = normalizeVoiceText(alias);
+        const aliasWords = normalizedAlias.split(" ").filter(Boolean);
+
+        return (
+          normalizedText.includes(normalizedAlias) ||
+          aliasWords.every((aliasWord) =>
+            spokenWords.some((spokenWord) =>
+              isCloseVoiceWord(spokenWord, aliasWord),
+            ),
+          )
+        );
+      })
     ) {
       return expression as Expression;
     }
@@ -94,14 +144,32 @@ export const InteractiveCharacter: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [expression, setExpression] = useState<Expression>("soft");
   const expressionRef = useRef<Expression>("soft");
+  const isSpeakingRef = useRef(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const voiceControlEnabledRef = useRef(false);
+  const recognitionRestartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wakingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const listeningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thinkingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sleepingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const saccadeControls = useAnimation();
+
+  const restartVoiceRecognition = useCallback((delay = 350) => {
+    if (recognitionRestartTimeoutRef.current) {
+      clearTimeout(recognitionRestartTimeoutRef.current);
+    }
+
+    recognitionRestartTimeoutRef.current = setTimeout(() => {
+      if (!voiceControlEnabledRef.current || isSpeakingRef.current) return;
+
+      try {
+        recognitionRef.current?.start();
+      } catch (error) {
+        // Recognition may already be active.
+      }
+    }, delay);
+  }, []);
 
   const clearEmotionTimers = useCallback(() => {
     if (wakingTimeoutRef.current) clearTimeout(wakingTimeoutRef.current);
@@ -133,15 +201,25 @@ export const InteractiveCharacter: React.FC = () => {
     if (!("speechSynthesis" in window)) return;
 
     window.speechSynthesis.cancel();
+    recognitionRef.current?.stop();
+    isSpeakingRef.current = true;
     setIsSpeaking(true);
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.95;
     utterance.pitch = 1.05;
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onend = () => {
+      isSpeakingRef.current = false;
+      setIsSpeaking(false);
+      restartVoiceRecognition();
+    };
+    utterance.onerror = () => {
+      isSpeakingRef.current = false;
+      setIsSpeaking(false);
+      restartVoiceRecognition();
+    };
     window.speechSynthesis.speak(utterance);
-  }, []);
+  }, [restartVoiceRecognition]);
 
   const applyVoiceCommand = useCallback(
     (nextExpression: Expression) => {
@@ -197,38 +275,40 @@ export const InteractiveCharacter: React.FC = () => {
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.lang = "en-IN";
     recognition.maxAlternatives = 5;
 
     recognition.onresult = (event) => {
-      const transcripts = Array.from(event.results).flatMap((result) =>
+      if (isSpeakingRef.current) return;
+
+      const results = Array.from(event.results);
+      const transcripts = results.flatMap((result) =>
         Array.from(result).map((alternative) => alternative.transcript),
       );
       const command = findVoiceCommand(transcripts.join(" "));
+      const hasFinalSpeech = results.some((result) => result.isFinal);
 
       if (command) {
         applyVoiceCommand(command);
-      } else {
+      } else if (hasFinalSpeech) {
         setExpression("thinking");
         speak("I did not catch that.");
       }
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       setExpression("thinking");
+
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        voiceControlEnabledRef.current = false;
+        speak("Microphone permission is blocked.");
+      }
     };
 
     recognition.onend = () => {
-      if (!voiceControlEnabledRef.current) return;
-
-      setTimeout(() => {
-        try {
-          recognition.start();
-        } catch (error) {
-          // Browser speech recognition can reject fast restarts.
-        }
-      }, 350);
+      if (!voiceControlEnabledRef.current || isSpeakingRef.current) return;
+      restartVoiceRecognition();
     };
 
     recognitionRef.current = recognition;
@@ -248,8 +328,15 @@ export const InteractiveCharacter: React.FC = () => {
   }, [expression]);
 
   useEffect(() => {
+    isSpeakingRef.current = isSpeaking;
+  }, [isSpeaking]);
+
+  useEffect(() => {
     return () => {
       voiceControlEnabledRef.current = false;
+      if (recognitionRestartTimeoutRef.current) {
+        clearTimeout(recognitionRestartTimeoutRef.current);
+      }
       recognitionRef.current?.stop();
       window.speechSynthesis?.cancel();
     };

@@ -153,15 +153,15 @@ export default function App() {
                   transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   className="text-[clamp(2.5rem,4vw,4rem)] xl:text-[5rem] font-black leading-[0.9] tracking-[-0.05em] text-slate-950 lg:text-right mix-blend-multiply mt-2 lg:mt-0 whitespace-nowrap text-left"
                 >
-                  <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent text-[32px] font-bold text-right px-[20px] py-[0px]">Hello! I'am</span>
+                  <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent text-[32px] font-bold text-right px-[20px] py-[0px]">Hello! I'm</span>
                    Abhiram K
                 </motion.h1>
               </div>
 
               {/* Center Character */}
-              <div className="relative w-[min(78vw,300px)] sm:w-[350px] lg:w-[400px] xl:w-[480px] h-[min(78vw,300px)] sm:h-[350px] lg:h-[400px] xl:h-[480px] flex items-center justify-center z-0 pointer-events-none mx-auto">
+              <div className="relative w-[min(78vw,300px)] sm:w-[350px] lg:w-[400px] xl:w-[480px] h-[min(78vw,300px)] sm:h-[350px] lg:h-[400px] xl:h-[480px] flex items-center justify-center z-0 pointer-events-auto mx-auto">
                 <div className="absolute w-[250px] lg:w-[350px] h-[250px] lg:h-[350px] bg-indigo-500/20 rounded-full blur-[80px]" />
-                <div className="absolute inset-0 flex items-center justify-center scale-110 sm:scale-[1.15] lg:scale-125">
+                <div className="absolute inset-0 flex items-center justify-center scale-110 sm:scale-[1.15] lg:scale-125 pointer-events-auto">
                   <InteractiveCharacter />
                 </div>
               </div>
