@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@figma/astraui";
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import {
   ArrowRight,
   ChevronDown,
@@ -75,6 +76,24 @@ const experience = [
 ];
 
 export default function App() {
+  useEffect(() => {
+    const sectionByPath: Record<string, string> = {
+      "/about": "about",
+      "/projects": "projects",
+      "/contact": "contact",
+    };
+    const sectionId = sectionByPath[window.location.pathname];
+
+    if (!sectionId) return;
+
+    window.requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView({
+        behavior: "auto",
+        block: "start",
+      });
+    });
+  }, []);
+
   return (
     <ThemeProvider>
       <main className="relative min-h-screen overflow-hidden bg-[#f8f9ff] text-slate-950 selection:bg-indigo-600 selection:text-white">
@@ -153,8 +172,9 @@ export default function App() {
                   transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   className="text-[clamp(2.5rem,4vw,4rem)] xl:text-[5rem] font-black leading-[0.9] tracking-[-0.05em] text-slate-950 lg:text-right mix-blend-multiply mt-2 lg:mt-0 whitespace-nowrap text-left"
                 >
-                  <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent text-[32px] font-bold text-right px-[20px] py-[0px]">Hello! I'm</span>
-                   Abhiram K
+                  <span className="sr-only">Abhiram K — Creative Developer from Kerala</span>
+                  <span aria-hidden="true" className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent text-[32px] font-bold text-right px-[20px] py-[0px]">Hello! I'm</span>
+                  <span aria-hidden="true"> Abhiram K</span>
                 </motion.h1>
               </div>
 
