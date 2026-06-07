@@ -1,6 +1,5 @@
 import { ThemeProvider } from "@figma/astraui";
 import { motion } from "motion/react";
-import { useEffect } from "react";
 import {
   ArrowRight,
   ChevronDown,
@@ -76,24 +75,6 @@ const experience = [
 ];
 
 export default function App() {
-  useEffect(() => {
-    const sectionByPath: Record<string, string> = {
-      "/about": "about",
-      "/projects": "projects",
-      "/contact": "contact",
-    };
-    const sectionId = sectionByPath[window.location.pathname];
-
-    if (!sectionId) return;
-
-    window.requestAnimationFrame(() => {
-      document.getElementById(sectionId)?.scrollIntoView({
-        behavior: "auto",
-        block: "start",
-      });
-    });
-  }, []);
-
   return (
     <ThemeProvider>
       <main className="relative min-h-screen overflow-hidden bg-[#f8f9ff] text-slate-950 selection:bg-indigo-600 selection:text-white">
@@ -282,10 +263,10 @@ export default function App() {
 
             <div className="lg:col-span-7">
               <p className="text-xl leading-8 text-slate-600">
-                I’m a B.Sc Computer Science graduate and Software Support Head
-                at Vestano International Pvt. Ltd. My work connects software
-                troubleshooting, retail systems, automation, AI experiments,
-                branding, and clean digital design.
+                I’m Abhiram K, a Creative Developer from Kerala and B.Sc
+                Computer Science graduate. My work connects modern websites,
+                interactive portfolios, automation, AI experiments, Python,
+                OpenCV, branding, and clean digital design.
               </p>
 
               <p className="mt-6 text-lg leading-8 text-slate-500">
