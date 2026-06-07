@@ -33,22 +33,22 @@ const skills = [
 const projects = [
   {
     title: "AI-Assisted Smart Security Gate",
-    desc: "A computer vision based gate automation system using number plate recognition, OCR, and access control logic.",
+    desc: "A Python and OpenCV computer vision project for practical automation, number plate recognition, OCR, and access control logic.",
     icon: ShieldCheck,
   },
   {
     title: "Creative Portfolio Systems",
-    desc: "Modern animated website experiences with clean layouts, visual storytelling, responsive UI, and motion design.",
+    desc: "Modern animated portfolio websites and interactive web experiences for personal brands, creators, and businesses in Kerala and Calicut.",
     icon: Code2,
   },
   {
     title: "Vestano Branding & Campaigns",
-    desc: "Brand identity, marketing visuals, proposal designs, launch campaigns, and premium presentation systems.",
+    desc: "Creative digital solutions including brand identity, marketing visuals, proposal designs, launch campaigns, and premium presentation systems.",
     icon: Palette,
   },
   {
     title: "Computer Vision Experiments",
-    desc: "Face detection, object detection, number plate region detection, and AI-powered visual recognition systems.",
+    desc: "AI project experiments using Python, OpenCV, face detection, object detection, number plate region detection, and visual recognition systems.",
     icon: BrainCircuit,
   },
 ];
@@ -182,6 +182,15 @@ export default function App() {
                 </motion.h2>
               </div>
             </div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, delay: 0.48 }}
+              className="mx-auto mt-8 max-w-2xl text-center text-sm font-semibold leading-6 text-slate-600 md:text-base"
+            >
+              Creative Developer from Kerala building websites, AI projects, Python tools, and digital experiences.
+            </motion.p>
 
             <div className="mt-12 md:mt-20 flex flex-col items-center">
               <motion.div
